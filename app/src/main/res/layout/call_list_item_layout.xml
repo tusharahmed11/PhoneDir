@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="5dp"
+   >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:orientation="horizontal">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Phone no: "
+                android:textColor="#232B2B"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                app:fontFamily="@font/montserrat_alternates_medium" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/phone_number_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="01316461859"
+                android:textColor="#232B2B"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                app:fontFamily="@font/montserrat_alternates" />
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:orientation="horizontal">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Contact name: "
+                android:textColor="#232B2B"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                app:fontFamily="@font/montserrat_alternates_medium" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/contact_name_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tushar ahmed"
+                android:textColor="#232B2B"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                app:fontFamily="@font/montserrat_alternates" />
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:orientation="horizontal">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Call type: "
+                android:textColor="#232B2B"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                app:fontFamily="@font/montserrat_alternates_medium" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/call_type_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Incoming"
+                android:textColor="#232B2B"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                app:fontFamily="@font/montserrat_alternates" />
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:orientation="horizontal">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Call date: "
+                android:textColor="#232B2B"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                app:fontFamily="@font/montserrat_alternates_medium" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/call_date_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="10 jul 2023"
+                android:textColor="#232B2B"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                app:fontFamily="@font/montserrat_alternates" />
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:orientation="horizontal">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Call time: "
+                android:textColor="#232B2B"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                app:fontFamily="@font/montserrat_alternates_medium" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/call_time_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="10:00 PM"
+                android:textColor="#232B2B"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                app:fontFamily="@font/montserrat_alternates" />
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:orientation="horizontal">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Call duration: "
+                android:textColor="#232B2B"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                app:fontFamily="@font/montserrat_alternates_medium" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/call_duration_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="27 seconds"
+                android:textColor="#232B2B"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                app:fontFamily="@font/montserrat_alternates" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>
