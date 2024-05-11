@@ -25,20 +25,19 @@ import java.util.Locale
 class MainActivity : AppCompatActivity() {
 
     private var callLogArrayList: ArrayList<CallLogModel> = arrayListOf()
-    lateinit var recyclerView: RecyclerView
-    lateinit var callLogAdapter: CallLogAdapter
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var callLogAdapter: CallLogAdapter
 
     // Define a constant array of the permissions you need
-    val PERMISSIONS = arrayOf(
+    private val PERMISSIONS = arrayOf(
         android.Manifest.permission.READ_CALL_LOG,
-        android.Manifest.permission.PROCESS_OUTGOING_CALLS,
         android.Manifest.permission.READ_PHONE_STATE
     )
 
     // Register a callback for the permission request result
-    val permissionResultLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
+    private val permissionResultLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
         // Check if all permissions are granted
-        val allGranted = result.values.all { it == true }
+        val allGranted = result.values.all { it }
         if (allGranted) {
             // Call your function that needs the permissions
             fetchCallLog()

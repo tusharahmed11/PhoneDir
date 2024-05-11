@@ -1,5 +1,5 @@
 [versions]
-agp = "8.3.0-alpha07"
+agp = "8.3.1"
 kotlin = "1.9.0"
 core-ktx = "1.10.1"
 junit = "4.13.2"
@@ -8,6 +8,9 @@ espresso-core = "3.5.1"
 appcompat = "1.6.1"
 material = "1.9.0"
 constraintlayout = "2.1.4"
+annotation = "1.7.1"
+lifecycle-livedata-ktx = "2.7.0"
+lifecycle-viewmodel-ktx = "2.7.0"
 
 [libraries]
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
@@ -17,6 +20,9 @@ espresso-core = { group = "androidx.test.espresso", name = "espresso-core", vers
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+androidx-annotation = { group = "androidx.annotation", name = "annotation", version.ref = "annotation" }
+androidx-lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycle-livedata-ktx" }
+androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycle-viewmodel-ktx" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
