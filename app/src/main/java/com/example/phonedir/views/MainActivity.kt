@@ -1,4 +1,4 @@
-package com.example.phonedir
+package com.example.phonedir.views
 
 import android.content.BroadcastReceiver
 import android.content.ComponentName
@@ -18,6 +18,10 @@ import androidx.core.content.PermissionChecker
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.phonedir.CallLogAdapter
+import com.example.phonedir.CallLogModel
+import com.example.phonedir.R
+import com.example.phonedir.Utils
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
