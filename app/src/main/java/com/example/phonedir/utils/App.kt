@@ -1,9 +1,7 @@
-package com.example.phonedir
+package com.example.phonedir.utils
 
 import android.app.Application
 import android.content.Context
-import android.content.IntentFilter
-import android.net.ConnectivityManager
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp

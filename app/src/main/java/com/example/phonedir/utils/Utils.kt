@@ -1,4 +1,4 @@
-package com.example.phonedir
+package com.example.phonedir.utils
 
 
 object Utils {

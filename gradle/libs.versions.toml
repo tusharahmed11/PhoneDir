@@ -18,6 +18,8 @@ lifecycle-livedata-ktx = "2.7.0"
 lifecycle-viewmodel-ktx = "2.7.0"
 activity = "1.8.2"
 retrofit = "2.11.0"
+room-common = "2.6.1"
+room-ktx = "2.6.1"
 
 [libraries]
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converter-gson" }
@@ -37,6 +39,8 @@ androidx-lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecy
 androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycle-viewmodel-ktx" }
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+androidx-room-common = { group = "androidx.room", name = "room-common", version.ref = "room-common" }
+androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room-ktx" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

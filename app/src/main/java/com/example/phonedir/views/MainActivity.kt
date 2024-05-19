@@ -21,7 +21,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.phonedir.CallLogAdapter
 import com.example.phonedir.CallLogModel
 import com.example.phonedir.R
-import com.example.phonedir.Utils
+import com.example.phonedir.utils.Utils
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
