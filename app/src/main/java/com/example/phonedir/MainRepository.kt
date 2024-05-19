@@ -1,4 +1,8 @@
 package com.example.phonedir
 
-class MainRepository {
+import com.example.phonedir.api.AppApi
+
+class MainRepository(
+    private val appApi: AppApi
+) {
 }
