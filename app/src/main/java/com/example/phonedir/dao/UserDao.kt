@@ -11,4 +11,7 @@ import kotlinx.coroutines.flow.Flow
 interface UserDao : BaseDao<UserEntity> {
     @Query("SELECT * FROM $TBL_USERS")
     fun getAllUser() : Flow<List<UserEntity>>
+
+    @Query("DELETE FROM $TBL_USERS")
+    suspend fun deleteAllUserData()
 }

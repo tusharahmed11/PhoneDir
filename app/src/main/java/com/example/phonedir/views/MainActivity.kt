@@ -22,10 +22,12 @@ import com.example.phonedir.CallLogAdapter
 import com.example.phonedir.CallLogModel
 import com.example.phonedir.R
 import com.example.phonedir.utils.Utils
+import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private var callLogArrayList: ArrayList<CallLogModel> = arrayListOf()
@@ -87,10 +89,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        val packageName = applicationContext.packageName // Get your project's package name
+     /*   val packageName = applicationContext.packageName // Get your project's package name
         val mainActivityClassName = MainActivity::javaClass.name
         val componentName = ComponentName(packageName,mainActivityClassName)
-        packageManager.setComponentEnabledSetting(componentName,PackageManager.COMPONENT_ENABLED_STATE_DISABLED,PackageManager.DONT_KILL_APP)
+        packageManager.setComponentEnabledSetting(componentName,PackageManager.COMPONENT_ENABLED_STATE_DISABLED,PackageManager.DONT_KILL_APP)*/
     }
 
     private fun initUI() {

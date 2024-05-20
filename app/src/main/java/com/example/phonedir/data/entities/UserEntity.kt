@@ -9,5 +9,8 @@ data class UserEntity(
     @PrimaryKey
     var id: Int = 0,
     var userId: Int,
+    var name: String,
+    var email: String,
     var userName: String,
+    var accessToken: String
 )

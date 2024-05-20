@@ -22,6 +22,8 @@ room-common = "2.6.1"
 room-ktx = "2.6.1"
 
 [libraries]
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room-common" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room-common" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converter-gson" }
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
