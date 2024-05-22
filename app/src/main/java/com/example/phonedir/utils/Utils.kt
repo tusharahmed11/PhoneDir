@@ -1,5 +1,8 @@
 package com.example.phonedir.utils
 
+import android.content.Context
+import androidx.core.content.PermissionChecker
+
 
 object Utils {
 
@@ -13,6 +16,15 @@ object Utils {
             if (sec == 0) "$min min" else "$min min $sec sec"
         }
         return durationFormatted
+    }
+
+     fun checkPermissions(permissions: Array<String>, context: Context): Boolean {
+        for (permission in permissions) {
+            if (PermissionChecker.checkSelfPermission(context, permission) != PermissionChecker.PERMISSION_GRANTED) {
+                return false // one or more permissions are not granted
+            }
+        }
+        return true // all permissions are granted
     }
 
 }

@@ -1,10 +1,9 @@
-package com.example.phonedir
+package com.example.phonedir.receiver
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.telephony.TelephonyManager
-import android.widget.Toast
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 
 class CallReceiver : BroadcastReceiver() {

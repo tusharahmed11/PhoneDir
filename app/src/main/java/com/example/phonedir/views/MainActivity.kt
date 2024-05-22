@@ -1,27 +1,30 @@
 package com.example.phonedir.views
 
 import android.content.BroadcastReceiver
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.PackageManager
 import android.database.Cursor
 import android.os.Bundle
 import android.provider.CallLog
+import android.provider.Telephony
 import android.telephony.TelephonyManager
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.PermissionChecker
+import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.example.phonedir.CallLogAdapter
-import com.example.phonedir.CallLogModel
+import com.example.phonedir.adapter.CallLogAdapter
+import com.example.phonedir.data.model.CallLogModel
 import com.example.phonedir.R
+import com.example.phonedir.adapter.SmsLogAdapter
+import com.example.phonedir.data.TeleTypeEnum
+import com.example.phonedir.data.model.MessageLogModel
+import com.example.phonedir.databinding.ActivityMainBinding
 import com.example.phonedir.utils.Utils
+import com.example.phonedir.utils.Utils.checkPermissions
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -30,14 +33,19 @@ import java.util.Locale
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var binding: ActivityMainBinding
     private var callLogArrayList: ArrayList<CallLogModel> = arrayListOf()
-    private lateinit var recyclerView: RecyclerView
+    private var smsLogArrayList: ArrayList<MessageLogModel> = arrayListOf()
     private lateinit var callLogAdapter: CallLogAdapter
+    private lateinit var smsLogAdapter: SmsLogAdapter
+    private var teleType = TeleTypeEnum.CALL
 
     // Define a constant array of the permissions you need
     private val PERMISSIONS = arrayOf(
         android.Manifest.permission.READ_CALL_LOG,
-        android.Manifest.permission.READ_PHONE_STATE
+        android.Manifest.permission.READ_PHONE_STATE,
+        android.Manifest.permission.READ_SMS,
+        android.Manifest.permission.RECEIVE_SMS,
     )
 
     // Register a callback for the permission request result
@@ -47,6 +55,7 @@ class MainActivity : AppCompatActivity() {
         if (allGranted) {
             // Call your function that needs the permissions
             fetchCallLog()
+            fetchSMSLog()
         } else {
             // Show a message that some permissions are not granted
             Toast.makeText(this, "Some permissions are not granted", Toast.LENGTH_SHORT).show()
@@ -73,50 +82,108 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+    private val smsReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == "smsStatus"){
+                val smsStatus = intent.getStringExtra("status")
+                Toast.makeText(context, "Sms received $smsStatus", Toast.LENGTH_SHORT).show()
+                fetchSMSLog()
+            }
+        }
+    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         supportActionBar?.title = "Call Logs"
-
 
 
         initUI()
 
     }
 
-    override fun onPause() {
+/*    override fun onPause() {
         super.onPause()
-     /*   val packageName = applicationContext.packageName // Get your project's package name
+     *//*   val packageName = applicationContext.packageName // Get your project's package name
         val mainActivityClassName = MainActivity::javaClass.name
         val componentName = ComponentName(packageName,mainActivityClassName)
-        packageManager.setComponentEnabledSetting(componentName,PackageManager.COMPONENT_ENABLED_STATE_DISABLED,PackageManager.DONT_KILL_APP)*/
-    }
+        packageManager.setComponentEnabledSetting(componentName,PackageManager.COMPONENT_ENABLED_STATE_DISABLED,PackageManager.DONT_KILL_APP)*//*
+    }*/
 
     private fun initUI() {
 
         val filter = IntentFilter("callStatus")
         LocalBroadcastManager.getInstance(this).registerReceiver(receiver, filter)
 
-        recyclerView = findViewById(R.id.main_rv)
-        val layoutManager = LinearLayoutManager(this)
-        layoutManager.orientation = LinearLayoutManager.VERTICAL
-        recyclerView.layoutManager = layoutManager
-        callLogAdapter = CallLogAdapter(callLogArrayList)
-        recyclerView.adapter = callLogAdapter
+        val smsFilter = IntentFilter("smsStatus")
+        LocalBroadcastManager.getInstance(this).registerReceiver(smsReceiver, smsFilter)
 
-        if (checkPermissions()){
+        setupCallLogRecyclerView()
+        setupSmsLogRecyclerView()
+        setupHeader()
+
+        if (checkPermissions(permissions = PERMISSIONS,this)){
             fetchCallLog()
+            fetchSMSLog()
         }else{
             // Request the permissions from the user
             permissionResultLauncher.launch(PERMISSIONS)
         }
 
+        binding.smsLogLayout.setOnClickListener {
+            teleType = TeleTypeEnum.SMS
+            setupHeader()
+        }
 
+        binding.callLogLayout.setOnClickListener {
+            teleType = TeleTypeEnum.CALL
+            setupHeader()
+        }
 
     }
+
+    private fun setupHeader() {
+
+        when(teleType){
+            TeleTypeEnum.CALL -> {
+                binding.mainRv.visibility = android.view.View.VISIBLE
+                binding.smsRv.visibility = android.view.View.GONE
+
+                binding.smsLogLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.gray_secondary_text))
+                binding.callLogLayout.setBackgroundColor(ContextCompat.getColor(this, com.google.android.material.R.color.material_dynamic_secondary20))
+
+
+            }
+            TeleTypeEnum.SMS -> {
+                binding.mainRv.visibility = android.view.View.GONE
+                binding.smsRv.visibility = android.view.View.VISIBLE
+
+                binding.smsLogLayout.setBackgroundColor(ContextCompat.getColor(this, com.google.android.material.R.color.material_dynamic_secondary20))
+                binding.callLogLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.gray_secondary_text))
+            }
+        }
+
+    }
+
+    private fun setupSmsLogRecyclerView() {
+        val layoutManager = LinearLayoutManager(this)
+        layoutManager.orientation = LinearLayoutManager.VERTICAL
+        binding.mainRv.layoutManager = layoutManager
+        callLogAdapter = CallLogAdapter(callLogArrayList)
+        binding.mainRv.adapter = callLogAdapter
+    }
+
+    private fun setupCallLogRecyclerView() {
+        val layoutManager = LinearLayoutManager(this)
+        layoutManager.orientation = LinearLayoutManager.VERTICAL
+        binding.smsRv.layoutManager = layoutManager
+        smsLogAdapter = SmsLogAdapter(smsLogArrayList)
+        binding.smsRv.adapter = smsLogAdapter
+    }
+
 
     private fun fetchCallLog(){
         val sortOrder: String = CallLog.Calls.DATE + " DESC"
@@ -198,13 +265,69 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    private fun fetchSMSLog(){
+        val sortOrder: String = Telephony.Sms.DATE + " DESC"
 
-    private fun checkPermissions(): Boolean {
-        for (permission in PERMISSIONS) {
-            if (PermissionChecker.checkSelfPermission(this, permission) != PermissionChecker.PERMISSION_GRANTED) {
-                return false // one or more permissions are not granted
-            }
+        val cursor: Cursor? = contentResolver.query(
+            Telephony.Sms.CONTENT_URI,
+            null,
+            null,
+            null,
+            sortOrder
+        )
+        //clearing the arraylist
+        smsLogArrayList.clear()
+
+        if (cursor != null && cursor.moveToFirst()) {
+
+            val idIndex = cursor.getColumnIndex(CallLog.Calls._ID)
+            val numberIndex = cursor.getColumnIndex(Telephony.Sms.ADDRESS)
+            val dateIndex = cursor.getColumnIndex(Telephony.Sms.DATE)
+            val messageIndex = cursor.getColumnIndex(Telephony.Sms.BODY)
+
+            do {
+                val callID = cursor.getString(idIndex)
+                val phoneNumber = cursor.getString(numberIndex)
+                val callDate = cursor.getString(dateIndex)
+                val smsMessage = cursor.getString(messageIndex)
+                var contactName = cursor.getString(numberIndex)
+                contactName = if (contactName == null || contactName.equals("")) "Unknown" else contactName
+
+                val dateFormatter = SimpleDateFormat(
+                    "dd MMM yyyy", Locale.getDefault()
+                )
+
+                val str_call_date = dateFormatter.format(Date(callDate.toLong()))
+
+                val timeFormatter = SimpleDateFormat(
+                    "HH:mm:ss", Locale.getDefault()
+                )
+                val str_call_time = timeFormatter.format(Date(callDate.toLong()))
+
+
+                // Check if column index is -1, indicating the column doesn't exist
+                if (idIndex != -1) {
+                    // Process call history data here
+
+                    val smsLogModel = MessageLogModel(
+                        phoneNumber = phoneNumber,
+                        messageDate = str_call_date,
+                        message = smsMessage,
+                        contactName = contactName
+                    )
+                    smsLogArrayList.add(smsLogModel)
+                } else {
+                    // Handle the case where the column doesn't exist
+
+                }
+            } while (cursor.moveToNext())
+            cursor.close()
+
+            smsLogAdapter.notifyDataSetChanged()
         }
-        return true // all permissions are granted
+
     }
+
+
+
 }
