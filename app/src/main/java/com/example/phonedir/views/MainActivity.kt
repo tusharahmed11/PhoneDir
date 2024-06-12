@@ -1,6 +1,9 @@
 package com.example.phonedir.views
 
+import android.appwidget.AppWidgetManager
+import android.appwidget.AppWidgetProvider
 import android.content.BroadcastReceiver
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -10,21 +13,27 @@ import android.provider.CallLog
 import android.provider.Telephony
 import android.telephony.TelephonyManager
 import android.util.Log
+import android.widget.RemoteViews
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.phonedir.PhoneDirWidget
 import com.example.phonedir.adapter.CallLogAdapter
 import com.example.phonedir.data.model.CallLogModel
 import com.example.phonedir.R
 import com.example.phonedir.adapter.SmsLogAdapter
 import com.example.phonedir.data.TeleTypeEnum
 import com.example.phonedir.data.model.MessageLogModel
+import com.example.phonedir.data.model.PhoneDataSubmitModel
+import com.example.phonedir.data.model.SubmitDataList
 import com.example.phonedir.databinding.ActivityMainBinding
+import com.example.phonedir.service.BackgroundApiService
 import com.example.phonedir.utils.Utils
 import com.example.phonedir.utils.Utils.checkPermissions
+import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -70,15 +79,40 @@ class MainActivity : AppCompatActivity() {
                 when (callStatus) {
                     TelephonyManager.EXTRA_STATE_OFFHOOK -> {
                         Toast.makeText(context, "Phone call started", Toast.LENGTH_SHORT).show()
+
                     }
                     TelephonyManager.EXTRA_STATE_IDLE -> {
                         Toast.makeText(context, "Phone call ended", Toast.LENGTH_SHORT).show()
                         fetchCallLog()
+                        updateAppWidget("Phone call ended")
+                        val phoneDataSubmitList : ArrayList<PhoneDataSubmitModel> = arrayListOf()
+                        if (callLogArrayList.isNotEmpty()){
+                            callLogArrayList.forEach {
+                                val phoneDataSubmitModel = PhoneDataSubmitModel(
+                                    direction = it.callType,
+                                    duration = it.callDuration,
+                                    local_number = it.phoneNumber,
+                                    remote_number = it.contactName,
+                                    status = it.callType,
+                                    type = "call"
+                                )
+
+                                phoneDataSubmitList.add(phoneDataSubmitModel)
+                            }
+                        }
+                        val gson = Gson()
+                        val jsonData = gson.toJson(SubmitDataList(submitList = phoneDataSubmitList))
+
+                        val serviceIntent = Intent(context, BackgroundApiService::class.java).apply {
+                            putExtra("data", jsonData)
+                        }
+                        context?.startService(serviceIntent)
                     }
                     TelephonyManager.EXTRA_STATE_RINGING -> {
                         Toast.makeText(context, "Phone call ringing", Toast.LENGTH_SHORT).show()
                     }
                 }
+
             }
         }
     }
@@ -87,6 +121,7 @@ class MainActivity : AppCompatActivity() {
             if (intent?.action == "smsStatus"){
                 val smsStatus = intent.getStringExtra("status")
                 Toast.makeText(context, "Sms received $smsStatus", Toast.LENGTH_SHORT).show()
+                updateAppWidget("Sms received")
                 fetchSMSLog()
             }
         }
@@ -106,7 +141,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 /*    override fun onPause() {
-        super.onPause()
+        super.onPause()`
      *//*   val packageName = applicationContext.packageName // Get your project's package name
         val mainActivityClassName = MainActivity::javaClass.name
         val componentName = ComponentName(packageName,mainActivityClassName)
@@ -328,6 +363,16 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    private fun updateAppWidget(text: String) {
+        val appWidgetManager = AppWidgetManager.getInstance(this)
+        val thisWidget = ComponentName(this, PhoneDirWidget::class.java)
+        val appWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget)
 
+        for (appWidgetId in appWidgetIds) {
+            val views = RemoteViews(packageName, R.layout.phone_dir_widget)
+            views.setTextViewText(R.id.appwidget_text, text)
+            appWidgetManager.updateAppWidget(appWidgetId, views)
+        }
+    }
 
 }

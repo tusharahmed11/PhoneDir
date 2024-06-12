@@ -7,6 +7,7 @@ import com.example.phonedir.data.Result
 import com.example.phonedir.data.entities.UserEntity
 import com.example.phonedir.data.model.LoginRequestModel
 import com.example.phonedir.data.model.LoginResponseModel
+import com.example.phonedir.data.model.PhoneDataSubmitModel
 import com.example.phonedir.repository.MainRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers.IO
@@ -29,6 +30,11 @@ class MainViewModel @Inject constructor(private val mainRepository: MainReposito
     fun loginUser(
         loginRequestModel: LoginRequestModel
     ) = viewModelScope.launch { mainRepository.loginApiCall(loginRequestModel) }
+
+    fun submitUserData(
+        token: String,
+        phoneDataSubmitModel: List<PhoneDataSubmitModel>
+    ) = viewModelScope.launch { mainRepository.submitApiCall(authToken = token, phoneDataSubmitModel = phoneDataSubmitModel) }
 
     val userData: LiveData<Result<LoginResponseModel>>
         get() = mainRepository.userInfo

@@ -3,6 +3,8 @@ package com.example.phonedir.api
 import com.example.phonedir.constants.APIConstants
 import com.example.phonedir.data.model.LoginRequestModel
 import com.example.phonedir.data.model.LoginResponseModel
+import com.example.phonedir.data.model.PhoneDataSubmitModel
+import com.example.phonedir.data.model.SubmitDataList
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.Header
@@ -15,5 +17,12 @@ interface AppApi {
         @Header("Content-Type") contentType: String = "application/json",
         @Body loginData: LoginRequestModel,
     ): Response<LoginResponseModel>
+
+    @POST(APIConstants.SUBMIT_PHONE_DATA)
+    suspend fun submitPhoneData(
+        @Header("Content-Type") contentType: String = "application/json",
+        @Header("Authorization") authorization: String,
+        @Body submitDataList: List<PhoneDataSubmitModel>,
+    ): Void
 
 }

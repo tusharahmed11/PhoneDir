@@ -12,7 +12,6 @@
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
 
-
     <application
         android:name=".utils.App"
         android:allowBackup="true"
@@ -24,22 +23,34 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PhoneDir"
         tools:targetApi="31">
+        <service android:name=".service.BackgroundApiService"/>
+        <receiver
+            android:name=".PhoneDirWidget"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/phone_dir_widget_info" />
+        </receiver>
+
         <activity
             android:name=".views.SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".views.LoginActivity"
-            android:exported="true">
-        </activity>
+            android:exported="true" />
         <activity
             android:name=".views.MainActivity"
-            android:exported="true">
-        </activity>
+            android:exported="true" />
 
         <receiver
             android:name=".receiver.CallReceiver"
@@ -49,7 +60,6 @@
                 <action android:name="android.intent.action.PHONE_STATE" />
             </intent-filter>
         </receiver>
-
         <receiver
             android:name=".receiver.SmsReceiver"
             android:enabled="true"
