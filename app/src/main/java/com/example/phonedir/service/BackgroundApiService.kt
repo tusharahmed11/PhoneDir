@@ -43,8 +43,9 @@ class BackgroundApiService : Service(){
 
             repository.getUserData().collectLatest { userDbList->
                 if (userDbList.isNotEmpty()){
+                    val token = "Bearer ${userDbList[0].accessToken}"
                     try {
-                        val result = repository.submitApiCall(authToken = userDbList[0].accessToken, phoneDataSubmitModel = data.submitList)
+                        val result = repository.submitApiCall(authToken = token, phoneDataSubmitModel = data.submitList)
                         Log.d("MyBackgroundService", "API call successful: $result")
                     } catch (e: Exception) {
                         Log.e("MyBackgroundService", "API call failed", e)
