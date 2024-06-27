@@ -123,6 +123,28 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(context, "Sms received $smsStatus", Toast.LENGTH_SHORT).show()
                 updateAppWidget("Sms received")
                 fetchSMSLog()
+               /* val phoneDataSubmitList : ArrayList<PhoneDataSubmitModel> = arrayListOf()
+                if (smsLogArrayList.isNotEmpty()){
+                    smsLogArrayList.forEach {
+                        val phoneDataSubmitModel = PhoneDataSubmitModel(
+                            direction = "sms",
+                            duration = it.messageDate,
+                            local_number = it.phoneNumber,
+                            remote_number = it.contactName,
+                            status = it.callType,
+                            type = "sms"
+                        )
+
+                        phoneDataSubmitList.add(phoneDataSubmitModel)
+                    }
+                }
+                val gson = Gson()
+                val jsonData = gson.toJson(SubmitDataList(submitList = phoneDataSubmitList))
+
+                val serviceIntent = Intent(context, BackgroundApiService::class.java).apply {
+                    putExtra("data", jsonData)
+                }
+                context?.startService(serviceIntent)*/
             }
         }
     }
