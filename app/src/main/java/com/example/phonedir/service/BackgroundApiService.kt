@@ -1,6 +1,7 @@
 package com.example.phonedir.service
 
 import android.app.Service
+import android.content.ComponentName
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
@@ -36,6 +37,18 @@ class BackgroundApiService : Service(){
         return START_STICKY
     }
 
+    override fun startForegroundService(service: Intent?): ComponentName? {
+        service?.let {
+            val jsonData = it.getStringExtra("data")
+            jsonData?.let {
+                val gson = Gson()
+                val data = gson.fromJson(jsonData, SubmitDataList::class.java)
+                performApiCall(data)
+            }
+        }
+        return super.startForegroundService(service)
+    }
+
     private fun performApiCall(data: SubmitDataList) {
 
 
@@ -55,5 +68,7 @@ class BackgroundApiService : Service(){
 
         }
     }
+
+
 
 }

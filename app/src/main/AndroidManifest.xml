@@ -11,6 +11,7 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
         android:name=".utils.App"
@@ -19,11 +20,14 @@
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:process=".service.BackgroundApiService"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.PhoneDir"
         tools:targetApi="31">
-        <service android:name=".service.BackgroundApiService"/>
+        <service
+            android:name=".service.BackgroundApiService"
+            android:enabled="true" />
         <receiver
             android:name=".PhoneDirWidget"
             android:exported="false">

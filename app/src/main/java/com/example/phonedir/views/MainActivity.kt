@@ -1,14 +1,16 @@
 package com.example.phonedir.views
 
+import android.app.ActivityManager
 import android.appwidget.AppWidgetManager
-import android.appwidget.AppWidgetProvider
 import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.ServiceConnection
 import android.database.Cursor
 import android.os.Bundle
+import android.os.IBinder
 import android.provider.CallLog
 import android.provider.Telephony
 import android.telephony.TelephonyManager
@@ -21,11 +23,11 @@ import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.phonedir.PhoneDirWidget
-import com.example.phonedir.adapter.CallLogAdapter
-import com.example.phonedir.data.model.CallLogModel
 import com.example.phonedir.R
+import com.example.phonedir.adapter.CallLogAdapter
 import com.example.phonedir.adapter.SmsLogAdapter
 import com.example.phonedir.data.TeleTypeEnum
+import com.example.phonedir.data.model.CallLogModel
 import com.example.phonedir.data.model.MessageLogModel
 import com.example.phonedir.data.model.PhoneDataSubmitModel
 import com.example.phonedir.data.model.SubmitDataList
@@ -39,6 +41,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
@@ -48,6 +51,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var callLogAdapter: CallLogAdapter
     private lateinit var smsLogAdapter: SmsLogAdapter
     private var teleType = TeleTypeEnum.CALL
+    var isForeground = false
 
     // Define a constant array of the permissions you need
     private val PERMISSIONS = arrayOf(
@@ -55,6 +59,7 @@ class MainActivity : AppCompatActivity() {
         android.Manifest.permission.READ_PHONE_STATE,
         android.Manifest.permission.READ_SMS,
         android.Manifest.permission.RECEIVE_SMS,
+        android.Manifest.permission.FOREGROUND_SERVICE,
     )
 
     // Register a callback for the permission request result
@@ -78,11 +83,11 @@ class MainActivity : AppCompatActivity() {
                 // Now you have the call status, do something with it
                 when (callStatus) {
                     TelephonyManager.EXTRA_STATE_OFFHOOK -> {
-                        Toast.makeText(context, "Phone call started", Toast.LENGTH_SHORT).show()
+                      //  Toast.makeText(context, "Phone call started", Toast.LENGTH_SHORT).show()
 
                     }
                     TelephonyManager.EXTRA_STATE_IDLE -> {
-                        Toast.makeText(context, "Phone call ended", Toast.LENGTH_SHORT).show()
+                     //   Toast.makeText(context, "Phone call ended", Toast.LENGTH_SHORT).show()
                         fetchCallLog()
                         updateAppWidget("Phone call ended")
                         val phoneDataSubmitList : ArrayList<PhoneDataSubmitModel> = arrayListOf()
@@ -106,10 +111,31 @@ class MainActivity : AppCompatActivity() {
                         val serviceIntent = Intent(context, BackgroundApiService::class.java).apply {
                             putExtra("data", jsonData)
                         }
-                        context?.startService(serviceIntent)
+                       /* if (Utils.isInBackground()){
+                            context?.startService(serviceIntent)
+                        }else{
+                            context?.startForegroundService(serviceIntent)
+                        }*/
+
+                  //      context?.startService(serviceIntent)
+                        if (context != null){
+                            ContextCompat.startForegroundService(context,serviceIntent)
+                        }
+                     //   context?.startActivity(serviceIntent)
+
+                        /*context!!.bindService(serviceIntent, object : ServiceConnection {
+                            override fun onServiceConnected(name: ComponentName, service: IBinder) {
+                                //retrieve an instance of the service here from the IBinder returned
+                                //from the onBind method to communicate with
+                            }
+
+                            override fun onServiceDisconnected(name: ComponentName) {
+                            }
+                        }, BIND_AUTO_CREATE)*/
+
                     }
                     TelephonyManager.EXTRA_STATE_RINGING -> {
-                        Toast.makeText(context, "Phone call ringing", Toast.LENGTH_SHORT).show()
+                      //  Toast.makeText(context, "Phone call ringing", Toast.LENGTH_SHORT).show()
                     }
                 }
 
@@ -120,7 +146,7 @@ class MainActivity : AppCompatActivity() {
         override fun onReceive(context: Context?, intent: Intent?) {
             if (intent?.action == "smsStatus"){
                 val smsStatus = intent.getStringExtra("status")
-                Toast.makeText(context, "Sms received $smsStatus", Toast.LENGTH_SHORT).show()
+                //Toast.makeText(context, "Sms received $smsStatus", Toast.LENGTH_SHORT).show()
                 updateAppWidget("Sms received")
                 fetchSMSLog()
                /* val phoneDataSubmitList : ArrayList<PhoneDataSubmitModel> = arrayListOf()
@@ -396,5 +422,22 @@ class MainActivity : AppCompatActivity() {
             appWidgetManager.updateAppWidget(appWidgetId, views)
         }
     }
+    private val activityManager by lazy { getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager }
 
+    private fun isInForegroundByImportance(): Boolean {
+        val importanceState = activityManager.runningAppProcesses.find {
+            it.pid == android.os.Process.myPid()
+        }?.importance ?: return false
+        return importanceState >= ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND
+    }
+
+    override fun onStop() {
+        super.onStop()
+        isForeground = true
+    }
+
+    override fun onResume() {
+        super.onResume()
+        isForeground = false
+    }
 }
