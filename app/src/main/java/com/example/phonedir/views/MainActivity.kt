@@ -59,7 +59,6 @@ class MainActivity : AppCompatActivity() {
         android.Manifest.permission.READ_PHONE_STATE,
         android.Manifest.permission.READ_SMS,
         android.Manifest.permission.RECEIVE_SMS,
-        android.Manifest.permission.FOREGROUND_SERVICE,
     )
 
     // Register a callback for the permission request result
@@ -74,6 +73,10 @@ class MainActivity : AppCompatActivity() {
             // Show a message that some permissions are not granted
             Toast.makeText(this, "Some permissions are not granted", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun launchPer(){
+        permissionResultLauncher.launch(PERMISSIONS)
     }
 
     private val receiver = object : BroadcastReceiver() {
@@ -132,6 +135,11 @@ class MainActivity : AppCompatActivity() {
                             override fun onServiceDisconnected(name: ComponentName) {
                             }
                         }, BIND_AUTO_CREATE)*/
+                        if (intent.action == Intent.ACTION_BOOT_COMPLETED || intent.action == Intent.ACTION_MY_PACKAGE_REPLACED) {
+                            context?.startForegroundService(serviceIntent)
+                        }else{
+                            context?.startService(serviceIntent)
+                        }
 
                     }
                     TelephonyManager.EXTRA_STATE_RINGING -> {
