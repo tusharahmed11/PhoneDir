@@ -1,5 +1,6 @@
 package com.example.phonedir.service
 
+import android.app.Notification
 import android.app.Service
 import android.content.ComponentName
 import android.content.Intent
@@ -20,12 +21,30 @@ import javax.inject.Inject
 class BackgroundApiService : Service(){
     @Inject
     lateinit var repository: MainRepository
+    private val ANDROID_CHANNEL_ID: String = "com.xxxx.Location.Channel"
+
 
     override fun onBind(p0: Intent?): IBinder? {
         return null
     }
 
+    override fun onCreate() {
+        super.onCreate()
+      /*  val NOTIFICATION_ID = (System.currentTimeMillis() % 10000).toInt()
+        startForeground(NOTIFICATION_ID, Notification.Builder(this).build())*/
+        val builder = Notification.Builder(this, ANDROID_CHANNEL_ID)
+            .setContentTitle("phone dir")
+            .setContentText("SmartTracker Running")
+            .setAutoCancel(true)
+        val notification = builder.build()
+        startForeground(1234, notification)
+    }
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+
+
+
+
         intent?.let {
             val jsonData = it.getStringExtra("data")
             jsonData?.let {
@@ -34,10 +53,11 @@ class BackgroundApiService : Service(){
                 performApiCall(data)
             }
         }
-        return START_STICKY
+        return super.onStartCommand(intent, flags, startId)
     }
 
     override fun startForegroundService(service: Intent?): ComponentName? {
+
         service?.let {
             val jsonData = it.getStringExtra("data")
             jsonData?.let {

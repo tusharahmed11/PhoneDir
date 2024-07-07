@@ -12,6 +12,7 @@
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
 
     <application
         android:name=".utils.App"
@@ -26,10 +27,13 @@
         android:theme="@style/Theme.PhoneDir"
         tools:targetApi="31">
         <service
-            android:name=".service.BackgroundApiService"
+            android:name=".service.AlwaysRunService"
             android:enabled="true"
-            android:directBootAware="true"
-            android:foregroundServiceType="phoneCall|remoteMessaging" />
+            android:foregroundServiceType="dataSync"
+             />
+        <service
+            android:name=".service.BackgroundApiService"
+            android:foregroundServiceType="dataSync" />
         <receiver
             android:name=".PhoneDirWidget"
             android:exported="false">
