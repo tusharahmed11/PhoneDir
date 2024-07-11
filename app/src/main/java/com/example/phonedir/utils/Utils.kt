@@ -5,6 +5,7 @@ import android.app.ActivityManager
 import android.app.ActivityManager.RunningAppProcessInfo
 import android.content.Context
 import android.content.pm.PackageManager
+import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
 import android.util.Log
 import androidx.core.app.ActivityCompat
@@ -55,15 +56,15 @@ object Utils {
     }
 
     fun getRecentCallLog(callLogArrayList: ArrayList<CallLogModel>): List<CallLogModel>  {
-        val currentDateTime = LocalDateTime.now()
-        val twoMinutesAgo = currentDateTime.minus(2, ChronoUnit.MINUTES)
+        if (callLogArrayList.isEmpty()) return emptyList()
 
-        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+        val mostRecentCall = callLogArrayList.maxByOrNull { it.callDateInLong }
 
-        return callLogArrayList.filter { callLog ->
-            val callDateTime = LocalDateTime.parse("${callLog.callDate} ${callLog.callTime}", formatter)
-            callDateTime.isAfter(twoMinutesAgo) && callDateTime.isBefore(currentDateTime)
-        }.take(1)
+        return if (mostRecentCall != null) {
+            listOf(mostRecentCall)
+        } else {
+            emptyList()
+        }
     }
 
     fun getRecentSmsLog(smsLogArrayList: ArrayList<MessageLogModel>): List<MessageLogModel>  {
@@ -90,6 +91,17 @@ object Utils {
         } else {
             null
         }
+
+       /* val subscriptionManager = context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE) as SubscriptionManager
+        return if (ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.READ_PHONE_STATE
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+             subscriptionManager.getPhoneNumber(SubscriptionManager.DEFAULT_SUBSCRIPTION_ID)
+        } else {
+            null
+        }*/
     }
 }
 

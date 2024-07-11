@@ -5,11 +5,13 @@ import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.phonedir.R
 import com.example.phonedir.repository.MainRepository
+import com.example.phonedir.service.AlwaysRunService
 import com.example.phonedir.viewmodel.MainViewModel
 import com.example.phonedir.viewmodel.MainViewModelFactory
 import dagger.hilt.android.AndroidEntryPoint
@@ -43,17 +45,21 @@ class SplashActivity : AppCompatActivity() {
             MainViewModelFactory(mainRepository)
         )[MainViewModel::class.java]
 
+        val serviceIntent = Intent(this, AlwaysRunService::class.java)
+        ContextCompat.startForegroundService(this, serviceIntent)
+
         CoroutineScope(Dispatchers.Main).launch {
             delay(1000)
             viewModel.getAllUserData().collectLatest { userList->
                 if (userList.isEmpty()){
+                    finish()
                     val intent = Intent(this@SplashActivity, LoginActivity::class.java)
                     startActivity(intent)
-                    finish()
                 }else{
+                    finish()
                     val intent = Intent(this@SplashActivity, MainActivity::class.java)
                     startActivity(intent)
-                    finish()
+
                 }
             }
         }

@@ -6,5 +6,6 @@ data class CallLogModel(
     val callType: String,
     val callDate: String,
     val callTime: String,
+    val callDateInLong: Long,
     val callDuration: String,
 )

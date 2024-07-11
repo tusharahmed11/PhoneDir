@@ -5,5 +5,6 @@ data class MessageLogModel(
     val contactName: String,
     val messageDate: String,
     val messageTime: String,
+    val messageDateInLong: Long,
     val message: String
 )

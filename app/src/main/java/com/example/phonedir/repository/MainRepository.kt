@@ -7,6 +7,7 @@ import com.example.phonedir.dao.UserDao
 import com.example.phonedir.data.Result
 import com.example.phonedir.data.entities.UserEntity
 import com.example.phonedir.data.model.CallLogModel
+import com.example.phonedir.data.model.CallSubmitModel
 import com.example.phonedir.data.model.LoginRequestModel
 import com.example.phonedir.data.model.LoginResponseModel
 import com.example.phonedir.data.model.PhoneDataSubmitModel
@@ -56,7 +57,7 @@ class MainRepository(
         }
     }
 
-    suspend fun submitApiCall(phoneDataSubmitModel: List<CallLogModel>, authToken: String){
+    suspend fun submitApiCall(phoneDataSubmitModel: CallSubmitModel, authToken: String){
         submitLiveData.postValue(Result.Loading("Loading"))
         try {
             val response = appApi.submitPhoneData(authorization = authToken, submitDataList = phoneDataSubmitModel)

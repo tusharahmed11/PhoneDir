@@ -118,35 +118,31 @@ class LoginActivity : AppCompatActivity() {
         CoroutineScope(Dispatchers.IO).launch {
 
             listOf(
+
                 async {
-                    if (userList.isEmpty()){
-                        viewModel.insertUserData(UserEntity(
-                            userId = data.user.id,
-                            email = data.user.email,
-                            userName = data.user.username.toString(),
-                            name = data.user.name,
-                            accessToken = data.accessToken,
-                            firstTimeCALLStatus = 1,
-                            firstTimeSMSStatus = 1
-                        ))
-                    }else{
+                    if (userList.isNotEmpty()){
                         viewModel.deleteAllUserData()
-                        viewModel.insertUserData(UserEntity(
-                            userId = data.user.id,
-                            email = data.user.email,
-                            userName = data.user.username.toString(),
-                            name = data.user.name,
-                            accessToken = data.accessToken,
-                            firstTimeCALLStatus = 1,
-                            firstTimeSMSStatus = 1
-                        ))
                     }
                 }.await(),
 
                 async {
+                    viewModel.insertUserData(UserEntity(
+                        userId = data.user.id,
+                        email = data.user.email,
+                        userName = data.user.username.toString(),
+                        name = data.user.name,
+                        accessToken = data.accessToken,
+                        firstTimeCALLStatus = 1,
+                        firstTimeSMSStatus = 1
+                    ))
+
+                }.await(),
+
+                async {
+                    finish()
                     val intent = Intent(this@LoginActivity, MainActivity::class.java)
                     startActivity(intent)
-                    finish()
+
                 }
             )
 

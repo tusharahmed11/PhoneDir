@@ -1,17 +1,14 @@
 package com.example.phonedir.views
 
-import android.app.ActivityManager
 import android.appwidget.AppWidgetManager
 import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.ServiceConnection
 import android.database.Cursor
 import android.os.Build
 import android.os.Bundle
-import android.os.IBinder
 import android.provider.CallLog
 import android.provider.Telephony
 import android.telephony.TelephonyManager
@@ -19,7 +16,6 @@ import android.util.Log
 import android.widget.RemoteViews
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
@@ -32,24 +28,19 @@ import com.example.phonedir.adapter.CallLogAdapter
 import com.example.phonedir.adapter.SmsLogAdapter
 import com.example.phonedir.data.TeleTypeEnum
 import com.example.phonedir.data.model.CallLogModel
+import com.example.phonedir.data.model.CallSubmitModel
 import com.example.phonedir.data.model.MessageLogModel
-import com.example.phonedir.data.model.PhoneDataSubmitModel
-import com.example.phonedir.data.model.SubmitDataList
 import com.example.phonedir.databinding.ActivityMainBinding
 import com.example.phonedir.repository.MainRepository
-import com.example.phonedir.service.AlwaysRunService
-import com.example.phonedir.service.BServiceBinder
-import com.example.phonedir.service.BackgroundApiService
 import com.example.phonedir.utils.Utils
 import com.example.phonedir.utils.Utils.checkPermissions
 import com.example.phonedir.utils.Utils.getRecentCallLog
-import com.google.gson.Gson
+import com.example.phonedir.utils.Utils.getSimNumber
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import java.lang.Compiler.command
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -95,6 +86,7 @@ class MainActivity : AppCompatActivity() {
             // Call your function that needs the permissions
             fetchCallLog()
             fetchSMSLog()
+            callListApiCall()
         } else {
             // Show a message that some permissions are not granted
             Toast.makeText(this, "Some permissions are not granted", Toast.LENGTH_SHORT).show()
@@ -118,7 +110,6 @@ class MainActivity : AppCompatActivity() {
                     TelephonyManager.EXTRA_STATE_IDLE -> {
                      //   Toast.makeText(context, "Phone call ended", Toast.LENGTH_SHORT).show()
                         fetchCallLog()
-                        updateAppWidget("Phone call ended")
                         /*val phoneDataSubmitList : ArrayList<PhoneDataSubmitModel> = arrayListOf()
                         if (callLogArrayList.isNotEmpty()){
                             callLogArrayList.forEach {
@@ -152,35 +143,7 @@ class MainActivity : AppCompatActivity() {
                             context?.startService(serviceIntent)
                         }*/
 
-                        CoroutineScope(Dispatchers.IO).launch {
-
-                            repository.getUserData().collectLatest { userDbList->
-                                if (userDbList.isNotEmpty()){
-                                    val userInfo = userDbList[0]
-                                    val token = "Bearer ${userInfo.accessToken}"
-                                    if (userInfo.firstTimeCALLStatus == 1){
-                                        try {
-                                            val result = repository.submitApiCall(authToken = token, phoneDataSubmitModel = callLogArrayList)
-                                            userInfo.firstTimeCALLStatus = 0
-                                            repository.updateUserData(userInfo)
-                                            Log.d("MyBackgroundService", "API call successful: $result")
-                                        } catch (e: Exception) {
-                                            Log.e("MyBackgroundService", "API call failed", e)
-                                        }
-                                    }else{
-                                        val recentCall = getRecentCallLog(callLogArrayList)
-                                        if (recentCall.isNotEmpty()){
-                                            try {
-                                                val result = repository.submitApiCall(authToken = token, phoneDataSubmitModel = recentCall)
-                                                Log.d("MyBackgroundService", "API call successful: $result")
-                                            } catch (e: Exception) {
-                                                Log.e("MyBackgroundService", "API call failed", e)
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                        callListApiCall()
 
                     }
                     TelephonyManager.EXTRA_STATE_RINGING -> {
@@ -196,7 +159,6 @@ class MainActivity : AppCompatActivity() {
             if (intent?.action == "smsStatus"){
                 val smsStatus = intent.getStringExtra("status")
                 //Toast.makeText(context, "Sms received $smsStatus", Toast.LENGTH_SHORT).show()
-                updateAppWidget("Sms received")
                 fetchSMSLog()
                /* val phoneDataSubmitList : ArrayList<PhoneDataSubmitModel> = arrayListOf()
                 if (smsLogArrayList.isNotEmpty()){
@@ -231,10 +193,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         supportActionBar?.title = "Call Logs"
-
-        val serviceIntent = Intent(this, AlwaysRunService::class.java)
-        ContextCompat.startForegroundService(this, serviceIntent)
-
         initUI()
 
     }
@@ -375,6 +333,7 @@ class MainActivity : AppCompatActivity() {
                         callType = callType,
                         callDate = str_call_date,
                         callTime = str_call_time,
+                        callDateInLong = callDate.toLong(),
                         callDuration = str_call_duration
                     )
                     callLogArrayList.add(callLogModel)
@@ -386,8 +345,50 @@ class MainActivity : AppCompatActivity() {
             cursor.close()
 
             callLogAdapter.notifyDataSetChanged()
+
         }
 
+    }
+
+    private fun callListApiCall(){
+        CoroutineScope(Dispatchers.IO).launch {
+            repository.getUserData().collectLatest { userDbList->
+                if (userDbList.isNotEmpty()){
+                    val userInfo = userDbList[0]
+                    val token = "Bearer ${userInfo.accessToken}"
+                    if (userInfo.firstTimeCALLStatus == 1){
+                        try {
+                            val callSubmitModel = CallSubmitModel(
+                                type = "call",
+                                callList = callLogArrayList,
+                                ownNumber = ""
+                            )
+                            val result = repository.submitApiCall(authToken = token, phoneDataSubmitModel = callSubmitModel)
+                            userInfo.firstTimeCALLStatus = 0
+                            repository.updateUserData(userInfo)
+                            Log.d("MyBackgroundService", "API call successful: $result")
+                        } catch (e: Exception) {
+                            Log.e("MyBackgroundService", "API call failed", e)
+                        }
+                    }else{
+                        val recentCall = getRecentCallLog(callLogArrayList)
+                        if (recentCall.isNotEmpty()){
+                            val callSubmitModel = CallSubmitModel(
+                                type = "call",
+                                callList = recentCall,
+                                ownNumber = ""
+                            )
+                            try {
+                                val result = repository.submitApiCall(authToken = token, phoneDataSubmitModel = callSubmitModel)
+                                Log.d("MyBackgroundService", "API call successful: $result")
+                            } catch (e: Exception) {
+                                Log.e("MyBackgroundService", "API call failed", e)
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private fun fetchSMSLog(){
@@ -439,6 +440,7 @@ class MainActivity : AppCompatActivity() {
                         messageDate = str_call_date,
                         message = smsMessage,
                         messageTime = str_call_time,
+                        messageDateInLong = callDate.toLong(),
                         contactName = contactName
                     )
                     smsLogArrayList.add(smsLogModel)
@@ -454,34 +456,5 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun updateAppWidget(text: String) {
-        val appWidgetManager = AppWidgetManager.getInstance(this)
-        val thisWidget = ComponentName(this, PhoneDirWidget::class.java)
-        val appWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget)
 
-        for (appWidgetId in appWidgetIds) {
-            val views = RemoteViews(packageName, R.layout.phone_dir_widget)
-            views.setTextViewText(R.id.appwidget_text, text)
-            appWidgetManager.updateAppWidget(appWidgetId, views)
-        }
-    }
-
-    private val activityManager by lazy { getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager }
-
-    private fun isInForegroundByImportance(): Boolean {
-        val importanceState = activityManager.runningAppProcesses.find {
-            it.pid == android.os.Process.myPid()
-        }?.importance ?: return false
-        return importanceState >= ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND
-    }
-
-    override fun onStop() {
-        super.onStop()
-        isForeground = true
-    }
-
-    override fun onResume() {
-        super.onResume()
-        isForeground = false
-    }
 }

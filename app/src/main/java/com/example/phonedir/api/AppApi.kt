@@ -2,6 +2,7 @@ package com.example.phonedir.api
 
 import com.example.phonedir.constants.APIConstants
 import com.example.phonedir.data.model.CallLogModel
+import com.example.phonedir.data.model.CallSubmitModel
 import com.example.phonedir.data.model.LoginRequestModel
 import com.example.phonedir.data.model.LoginResponseModel
 import com.example.phonedir.data.model.PhoneDataSubmitModel
@@ -23,7 +24,7 @@ interface AppApi {
     suspend fun submitPhoneData(
         @Header("Content-Type") contentType: String = "application/json",
         @Header("Authorization") authorization: String,
-        @Body submitDataList: List<CallLogModel>,
+        @Body submitDataList: CallSubmitModel,
     ): Void
 
 }
