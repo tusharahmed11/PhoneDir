@@ -12,5 +12,7 @@ data class UserEntity(
     var name: String,
     var email: String,
     var userName: String,
-    var accessToken: String
+    var accessToken: String,
+    var firstTimeCALLStatus: Int,
+    var firstTimeSMSStatus: Int
 )

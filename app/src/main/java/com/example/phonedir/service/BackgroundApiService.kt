@@ -71,7 +71,7 @@ class BackgroundApiService : Service(){
 
     private fun performApiCall(data: SubmitDataList) {
 
-
+/*
         CoroutineScope(Dispatchers.IO).launch {
 
             repository.getUserData().collectLatest { userDbList->
@@ -86,7 +86,7 @@ class BackgroundApiService : Service(){
                 }
             }
 
-        }
+        }*/
     }
 
 

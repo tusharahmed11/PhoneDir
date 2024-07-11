@@ -31,10 +31,10 @@ class MainViewModel @Inject constructor(private val mainRepository: MainReposito
         loginRequestModel: LoginRequestModel
     ) = viewModelScope.launch { mainRepository.loginApiCall(loginRequestModel) }
 
-    fun submitUserData(
+/*    fun submitUserData(
         token: String,
         phoneDataSubmitModel: List<PhoneDataSubmitModel>
-    ) = viewModelScope.launch { mainRepository.submitApiCall(authToken = token, phoneDataSubmitModel = phoneDataSubmitModel) }
+    ) = viewModelScope.launch { mainRepository.submitApiCall(authToken = token, phoneDataSubmitModel = phoneDataSubmitModel) }*/
 
     val userData: LiveData<Result<LoginResponseModel>>
         get() = mainRepository.userInfo

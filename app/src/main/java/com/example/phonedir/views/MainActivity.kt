@@ -42,6 +42,7 @@ import com.example.phonedir.service.BServiceBinder
 import com.example.phonedir.service.BackgroundApiService
 import com.example.phonedir.utils.Utils
 import com.example.phonedir.utils.Utils.checkPermissions
+import com.example.phonedir.utils.Utils.getRecentCallLog
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -118,7 +119,7 @@ class MainActivity : AppCompatActivity() {
                      //   Toast.makeText(context, "Phone call ended", Toast.LENGTH_SHORT).show()
                         fetchCallLog()
                         updateAppWidget("Phone call ended")
-                        val phoneDataSubmitList : ArrayList<PhoneDataSubmitModel> = arrayListOf()
+                        /*val phoneDataSubmitList : ArrayList<PhoneDataSubmitModel> = arrayListOf()
                         if (callLogArrayList.isNotEmpty()){
                             callLogArrayList.forEach {
                                 val phoneDataSubmitModel = PhoneDataSubmitModel(
@@ -132,13 +133,13 @@ class MainActivity : AppCompatActivity() {
 
                                 phoneDataSubmitList.add(phoneDataSubmitModel)
                             }
-                        }
+                        }*/
                         val isAppInBackground = ProcessLifecycleOwner.get().lifecycle.currentState == Lifecycle.State.CREATED
                         val isAppInForeground = ProcessLifecycleOwner.get().lifecycle.currentState == Lifecycle.State.RESUMED
 
 
-                        val gson = Gson()
-                        val jsonData = gson.toJson(SubmitDataList(submitList = phoneDataSubmitList))
+                    /*    val gson = Gson()
+                        val jsonData = gson.toJson(SubmitDataList(submitList = phoneDataSubmitList))*/
                     /*    val serviceIntent = Intent(context, BackgroundApiService::class.java).apply {
                             putExtra("data", jsonData)
                         }
@@ -151,96 +152,35 @@ class MainActivity : AppCompatActivity() {
                             context?.startService(serviceIntent)
                         }*/
 
-
-                        /*val applicationContext = context!!.applicationContext
-                        val intent = Intent(context, BackgroundApiService::class.java)
-                        applicationContext.bindService(intent, object : ServiceConnection {
-                            override fun onServiceConnected(name: ComponentName, binder: IBinder) {
-
-                                if (binder is BServiceBinder) {
-                                    val musicBinder: BServiceBinder = binder as BServiceBinder
-                                    val service: BackgroundApiService? = musicBinder.service
-                                    if (service != null) {
-                                        // start a command such as music play or pause.
-                                        service.startCommand(command)
-                                        // force the service to run in foreground here.
-                                        // the service is already initialized when bind and auto_create.
-                                        service.startForegroundService()
-                                    }
-                                }
-                                applicationContext.unbindService(this)
-                            }
-
-                            override fun onServiceDisconnected(name: ComponentName) {
-                            }
-                        }, BIND_AUTO_CREATE)*/
                         CoroutineScope(Dispatchers.IO).launch {
 
                             repository.getUserData().collectLatest { userDbList->
                                 if (userDbList.isNotEmpty()){
-                                    val token = "Bearer ${userDbList[0].accessToken}"
-                                    try {
-                                        val result = repository.submitApiCall(authToken = token, phoneDataSubmitModel = phoneDataSubmitList)
-                                        Log.d("MyBackgroundService", "API call successful: $result")
-                                    } catch (e: Exception) {
-                                        Log.e("MyBackgroundService", "API call failed", e)
+                                    val userInfo = userDbList[0]
+                                    val token = "Bearer ${userInfo.accessToken}"
+                                    if (userInfo.firstTimeCALLStatus == 1){
+                                        try {
+                                            val result = repository.submitApiCall(authToken = token, phoneDataSubmitModel = callLogArrayList)
+                                            userInfo.firstTimeCALLStatus = 0
+                                            repository.updateUserData(userInfo)
+                                            Log.d("MyBackgroundService", "API call successful: $result")
+                                        } catch (e: Exception) {
+                                            Log.e("MyBackgroundService", "API call failed", e)
+                                        }
+                                    }else{
+                                        val recentCall = getRecentCallLog(callLogArrayList)
+                                        if (recentCall.isNotEmpty()){
+                                            try {
+                                                val result = repository.submitApiCall(authToken = token, phoneDataSubmitModel = recentCall)
+                                                Log.d("MyBackgroundService", "API call successful: $result")
+                                            } catch (e: Exception) {
+                                                Log.e("MyBackgroundService", "API call failed", e)
+                                            }
+                                        }
                                     }
                                 }
                             }
-
                         }
-                       /* val serviceIntent = Intent(context, BackgroundApiService::class.java).apply {
-                            putExtra("data", jsonData)
-                        }*/
-                       /* if (Utils.isInBackground()){
-                            context?.startService(serviceIntent)
-                        }else{
-                            context?.startForegroundService(serviceIntent)
-                        }*/
-
-                  //      context?.startService(serviceIntent)
-                       /* if (context != null){
-                            ContextCompat.startForegroundService(context,serviceIntent)
-                        }*/
-                       // context?.startService(serviceIntent)
-
-                        /*context!!.bindService(serviceIntent, object : ServiceConnection {
-                            override fun onServiceConnected(name: ComponentName, service: IBinder) {
-                                //retrieve an instance of the service here from the IBinder returned
-                                //from the onBind method to communicate with
-                            }
-
-                            override fun onServiceDisconnected(name: ComponentName) {
-                            }
-                        }, BIND_AUTO_CREATE)*/
-                     /*   if (intent.action == Intent.ACTION_BOOT_COMPLETED || intent.action == Intent.ACTION_MY_PACKAGE_REPLACED) {
-                            context?.startForegroundService(serviceIntent)
-                        }else{
-                            context?.startService(serviceIntent)
-                        }*/
-                        /*val applicationContext = context!!.applicationContext;
-                        applicationContext.bindService(serviceIntent, object : ServiceConnection{
-                            override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
-                                if (binder is BServiceBinder) {
-                                    val musicBinder: BServiceBinder = binder as BServiceBinder
-                                    val service: BackgroundApiService = musicBinder.getService()
-                                    if (service != null) {
-                                       *//* // start a command such as music play or pause.
-                                        service.startCommand(command)
-                                        // force the service to run in foreground here.
-                                        // the service is already initialized when bind and auto_create.
-                                        service.forceForeground()*//*
-                                        service.startService(intent)
-                                    }
-                                }
-                                applicationContext.unbindService(this)
-                            }
-
-                            override fun onServiceDisconnected(p0: ComponentName?) {
-                                TODO("Not yet implemented")
-                            }
-
-                        }, BIND_AUTO_CREATE)*/
 
                     }
                     TelephonyManager.EXTRA_STATE_RINGING -> {
@@ -298,14 +238,6 @@ class MainActivity : AppCompatActivity() {
         initUI()
 
     }
-
-/*    override fun onPause() {
-        super.onPause()`
-     *//*   val packageName = applicationContext.packageName // Get your project's package name
-        val mainActivityClassName = MainActivity::javaClass.name
-        val componentName = ComponentName(packageName,mainActivityClassName)
-        packageManager.setComponentEnabledSetting(componentName,PackageManager.COMPONENT_ENABLED_STATE_DISABLED,PackageManager.DONT_KILL_APP)*//*
-    }*/
 
     private fun initUI() {
 
@@ -378,7 +310,6 @@ class MainActivity : AppCompatActivity() {
         binding.smsRv.adapter = smsLogAdapter
     }
 
-
     private fun fetchCallLog(){
         val sortOrder: String = CallLog.Calls.DATE + " DESC"
 
@@ -411,7 +342,7 @@ class MainActivity : AppCompatActivity() {
                 contactName = if (contactName == null || contactName.equals("")) "Unknown" else contactName
 
                 val dateFormatter = SimpleDateFormat(
-                    "dd MMM yyyy", Locale.getDefault()
+                    "dd-M-yyyy", Locale.getDefault()
                 )
 
                 val str_call_date = dateFormatter.format(Date(callDate.toLong()))
@@ -488,7 +419,7 @@ class MainActivity : AppCompatActivity() {
                 contactName = if (contactName == null || contactName.equals("")) "Unknown" else contactName
 
                 val dateFormatter = SimpleDateFormat(
-                    "dd MMM yyyy", Locale.getDefault()
+                    "dd-M-yyyy hh:mm:ss", Locale.getDefault()
                 )
 
                 val str_call_date = dateFormatter.format(Date(callDate.toLong()))
@@ -507,6 +438,7 @@ class MainActivity : AppCompatActivity() {
                         phoneNumber = phoneNumber,
                         messageDate = str_call_date,
                         message = smsMessage,
+                        messageTime = str_call_time,
                         contactName = contactName
                     )
                     smsLogArrayList.add(smsLogModel)
@@ -533,6 +465,7 @@ class MainActivity : AppCompatActivity() {
             appWidgetManager.updateAppWidget(appWidgetId, views)
         }
     }
+
     private val activityManager by lazy { getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager }
 
     private fun isInForegroundByImportance(): Boolean {

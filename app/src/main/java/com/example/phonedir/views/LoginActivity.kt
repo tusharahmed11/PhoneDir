@@ -125,7 +125,9 @@ class LoginActivity : AppCompatActivity() {
                             email = data.user.email,
                             userName = data.user.username.toString(),
                             name = data.user.name,
-                            accessToken = data.accessToken
+                            accessToken = data.accessToken,
+                            firstTimeCALLStatus = 1,
+                            firstTimeSMSStatus = 1
                         ))
                     }else{
                         viewModel.deleteAllUserData()
@@ -134,7 +136,9 @@ class LoginActivity : AppCompatActivity() {
                             email = data.user.email,
                             userName = data.user.username.toString(),
                             name = data.user.name,
-                            accessToken = data.accessToken
+                            accessToken = data.accessToken,
+                            firstTimeCALLStatus = 1,
+                            firstTimeSMSStatus = 1
                         ))
                     }
                 }.await(),

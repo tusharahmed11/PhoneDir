@@ -73,7 +73,7 @@
             <androidx.appcompat.widget.AppCompatTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Call date: "
+                android:text="Sms date: "
                 android:textColor="#232B2B"
                 android:textSize="13sp"
                 android:textStyle="bold"
