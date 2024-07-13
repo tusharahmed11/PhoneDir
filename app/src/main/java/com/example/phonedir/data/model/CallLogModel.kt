@@ -1,6 +1,7 @@
 package com.example.phonedir.data.model
 
 data class CallLogModel(
+    val id: String,
     val phoneNumber: String,
     val contactName: String,
     val callType: String,

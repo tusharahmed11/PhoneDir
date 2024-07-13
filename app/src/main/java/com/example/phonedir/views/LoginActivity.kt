@@ -69,10 +69,16 @@ class LoginActivity : AppCompatActivity() {
 
         val userEmail = binding.inputEmail.text.toString()
         val password = binding.inputPassword.text.toString()
+        val phoneNumber = binding.inputPhoneNumber.text.toString()
 
         when {
             userEmail.isEmpty() -> {
                 Toast.makeText(this, "Please enter your email address", Toast.LENGTH_SHORT).show()
+                return
+            }
+
+            phoneNumber.isEmpty() -> {
+                Toast.makeText(this, "Please enter your phone number", Toast.LENGTH_SHORT).show()
                 return
             }
 
@@ -84,7 +90,8 @@ class LoginActivity : AppCompatActivity() {
 
         val loginRequestModel = LoginRequestModel(
             email = userEmail,
-            password = password
+            password = password,
+            phoneNumber = phoneNumber
         )
 
         viewModel.loginUser(loginRequestModel)
@@ -104,7 +111,7 @@ class LoginActivity : AppCompatActivity() {
                 }
 
                 is Result.Success -> {
-                    insertUserData(result.data)
+                    insertUserData(result.data, phoneNumber)
 
                 }
             }
@@ -114,7 +121,7 @@ class LoginActivity : AppCompatActivity() {
 
     }
 
-    private fun insertUserData(data: LoginResponseModel) {
+    private fun insertUserData(data: LoginResponseModel, phoneNumber: String) {
         CoroutineScope(Dispatchers.IO).launch {
 
             listOf(
@@ -130,6 +137,7 @@ class LoginActivity : AppCompatActivity() {
                         userId = data.user.id,
                         email = data.user.email,
                         userName = data.user.username.toString(),
+                        phoneNumber = phoneNumber,
                         name = data.user.name,
                         accessToken = data.accessToken,
                         firstTimeCALLStatus = 1,

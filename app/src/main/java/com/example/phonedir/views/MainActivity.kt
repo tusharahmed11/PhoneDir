@@ -1,8 +1,6 @@
 package com.example.phonedir.views
 
-import android.appwidget.AppWidgetManager
 import android.content.BroadcastReceiver
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -13,16 +11,12 @@ import android.provider.CallLog
 import android.provider.Telephony
 import android.telephony.TelephonyManager
 import android.util.Log
-import android.widget.RemoteViews
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.phonedir.PhoneDirWidget
 import com.example.phonedir.R
 import com.example.phonedir.adapter.CallLogAdapter
 import com.example.phonedir.adapter.SmsLogAdapter
@@ -35,7 +29,6 @@ import com.example.phonedir.repository.MainRepository
 import com.example.phonedir.utils.Utils
 import com.example.phonedir.utils.Utils.checkPermissions
 import com.example.phonedir.utils.Utils.getRecentCallLog
-import com.example.phonedir.utils.Utils.getSimNumber
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -125,8 +118,6 @@ class MainActivity : AppCompatActivity() {
                                 phoneDataSubmitList.add(phoneDataSubmitModel)
                             }
                         }*/
-                        val isAppInBackground = ProcessLifecycleOwner.get().lifecycle.currentState == Lifecycle.State.CREATED
-                        val isAppInForeground = ProcessLifecycleOwner.get().lifecycle.currentState == Lifecycle.State.RESUMED
 
 
                     /*    val gson = Gson()
@@ -328,6 +319,7 @@ class MainActivity : AppCompatActivity() {
                     Log.d("CallLog", "Call ID: $callID, Phone Number: $phoneNumber, Call Date: $callDate, Call Duration: $callDuration, Call Type: $callType")
 
                     val callLogModel = CallLogModel(
+                        id = callID,
                         phoneNumber = phoneNumber,
                         contactName = contactName,
                         callType = callType,
@@ -361,7 +353,7 @@ class MainActivity : AppCompatActivity() {
                             val callSubmitModel = CallSubmitModel(
                                 type = "call",
                                 callList = callLogArrayList,
-                                ownNumber = ""
+                                ownNumber = userInfo.phoneNumber
                             )
                             val result = repository.submitApiCall(authToken = token, phoneDataSubmitModel = callSubmitModel)
                             userInfo.firstTimeCALLStatus = 0
@@ -376,7 +368,7 @@ class MainActivity : AppCompatActivity() {
                             val callSubmitModel = CallSubmitModel(
                                 type = "call",
                                 callList = recentCall,
-                                ownNumber = ""
+                                ownNumber = userInfo.phoneNumber
                             )
                             try {
                                 val result = repository.submitApiCall(authToken = token, phoneDataSubmitModel = callSubmitModel)
@@ -436,6 +428,7 @@ class MainActivity : AppCompatActivity() {
                     // Process call history data here
 
                     val smsLogModel = MessageLogModel(
+                        id = idIndex,
                         phoneNumber = phoneNumber,
                         messageDate = str_call_date,
                         message = smsMessage,
